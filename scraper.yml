@@ -1,0 +1,44 @@
+name: Check Vald Tickets
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # toutes les 15 minutes
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+      - name: Run scraper
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: |
+          python - <<EOF
+          import os, requests
+          from bs4 import BeautifulSoup
+
+          URL = "https://www.ticketmaster.fr/fr/manifestation/vald-billet/idmanif/618630"
+          BOT_TOKEN = os.getenv("BOT_TOKEN")
+          CHAT_ID = os.getenv("CHAT_ID")
+
+          def send_telegram(msg):
+              url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+              payload = {"chat_id": CHAT_ID, "text": msg}
+              requests.post(url, data=payload)
+
+          resp = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
+          soup = BeautifulSoup(resp.text, "html.parser")
+          txt = soup.get_text().lower()
+          dispo = "fosse" in txt and "épuisée" not in txt and "sold out" not in txt
+
+          if dispo:
+              send_telegram("🔥 Fosse normale dispo pour VALD ! 🚀")
+          EOF
