@@ -1,9 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
-import os
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")   # Ton token Telegram
-CHAT_ID = os.getenv("CHAT_ID")       # Ton chat_id Telegram
+# ⚠️ Remplace par ton vrai token et chat_id
+BOT_TOKEN = "TON_TOKEN_ICI"
+CHAT_ID = "TON_CHAT_ID_ICI"
 
 URL = "https://www.ticketmaster.fr/fr/manifestation/vald-billet/idmanif/618630"
 
@@ -17,7 +17,7 @@ def check_categorie3() -> bool:
     soup = BeautifulSoup(resp.text, "html.parser")
     txt = soup.get_text().lower()
 
-    # Vérifie si "catégorie 3" existe et n’est pas marqué comme épuisé
+    # Vérifie si "catégorie 3" est présente ET non marquée comme épuisée
     return "catégorie 3" in txt and "épuisé" not in txt and "sold out" not in txt
 
 if __name__ == "__main__":
