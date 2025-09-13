@@ -12,14 +12,16 @@ def send_telegram(msg: str):
     payload = {"chat_id": CHAT_ID, "text": msg}
     requests.post(url, data=payload)
 
-def check_fosse_normale() -> bool:
+def check_categorie3() -> bool:
     resp = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
     soup = BeautifulSoup(resp.text, "html.parser")
     txt = soup.get_text().lower()
-    return "fosse" in txt and "épuisée" not in txt and "sold out" not in txt
+
+    # Vérifie si "catégorie 3" existe et n’est pas marqué comme épuisé
+    return "catégorie 3" in txt and "épuisé" not in txt and "sold out" not in txt
 
 if __name__ == "__main__":
-    if check_fosse_normale():
-        send_telegram("🔥 Fosse normale dispo pour VALD ! 🚀")
+    if check_categorie3():
+        send_telegram("🔥 Des places en CATÉGORIE 3 sont DISPONIBLES pour VALD ! 🚀")
     else:
-        print("❌ Pas dispo")
+        print("❌ Catégorie 3 toujours épuisée...")
