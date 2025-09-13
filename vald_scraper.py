@@ -2,8 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-BOT_TOKEN = os.getenv("7931205039:AAGgCaBrEthLALnJXPWhT_V1_YfD80SvIIA")   # Ton token Telegram
-CHAT_ID = os.getenv("7952868775")       # Ton chat_id Telegram
+BOT_TOKEN = os.getenv("BOT_TOKEN")   # Ton token Telegram
+CHAT_ID = os.getenv("CHAT_ID")       # Ton chat_id Telegram
 
 URL = "https://www.ticketmaster.fr/fr/manifestation/vald-billet/idmanif/618630"
 
