@@ -1,0 +1,23 @@
+name: Check Vald Tickets
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # Vérifie toutes les 15 minutes
+  workflow_dispatch:          # Permet de lancer manuellement
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+      - name: Run scraper
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python vald_scraper.py
