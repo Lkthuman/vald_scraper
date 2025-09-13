@@ -1,34 +1,28 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import time
 import requests
-from bs4 import BeautifulSoup
 
-# ⚠️ Remplace par ton vrai token et chat_id
 BOT_TOKEN = "7931205039:AAGgCaBrEthLALnJXPWhT_V1_YfD80SvIIA"
 CHAT_ID = "7952868775"
 
 URL = "https://www.ticketmaster.fr/fr/manifestation/vald-billet/idmanif/618630"
 
-def send_telegram(msg: str):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": CHAT_ID, "text": msg}
-    r = requests.post(url, data=payload)
-    print("Envoi Telegram :", r.status_code, r.text)
+def send_telegram(msg):
+    requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                  data={"chat_id": CHAT_ID, "text": msg})
 
-def check_categorie3():
-    resp = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
-    soup = BeautifulSoup(resp.text, "html.parser")
+options = Options()
+options.add_argument("--headless")  # pour ne pas ouvrir la fenêtre
+driver = webdriver.Chrome(options=options)
+driver.get(URL)
+time.sleep(5)  # laisse la page charger
 
-    # Cherche tous les blocs de catégories
-    categories = soup.find_all(string=lambda t: "catégorie 3" in t.lower())
+html = driver.page_source
 
-    for cat in categories:
-        bloc = cat.parent.get_text(" ", strip=True).lower()
-        print("Bloc trouvé :", bloc)  # debug
-        if "épuisé" not in bloc and "sold out" not in bloc:
-            return True
-    return False
+if "Catégorie 3" in html and "Épuisé" not in html and "Sold Out" not in html:
+    send_telegram("🔥 Des places en CATÉGORIE 3 sont DISPONIBLES pour VALD ! 🚀")
+else:
+    print("❌ Catégorie 3 toujours épuisée...")
 
-if __name__ == "__main__":
-    if check_categorie3():
-        send_telegram("🔥 Des places en CATÉGORIE 3 sont DISPONIBLES pour VALD ! 🚀")
-    else:
-        print("❌ Catégorie 3 toujours épuisée...")
+driver.quit()
